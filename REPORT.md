@@ -372,19 +372,19 @@ graph LR
 ```mermaid
 sequenceDiagram
     participant B as Browser
-    participant C as Caddy :8443
+    participant C as Caddy Server
     
     Note over B,C: Lần kết nối ĐẦU TIÊN (HTTP/2)
     B->>+C: TCP SYN / TLS ClientHello (ALPN: h2)
     C-->>-B: TCP SYN-ACK / TLS ServerHello (h2)
     B->>C: GET /content/manifest.mpd (HTTP/2)
-    C-->>B: 200 OK + Alt-Svc: h3=":8443"; ma=2592000
-    Note over B: Browser ghi nhớ: "Caddy hỗ trợ h3 trên port 8443"
+    C-->>B: 200 OK (Alt-Svc: h3=:8443)
+    Note over B: Browser ghi nhớ Caddy hỗ trợ h3 trên port 8443
     
     Note over B,C: Lần kết nối SAU (HTTP/3 / QUIC)
     B->>+C: QUIC Initial Packet (ALPN: h3)
     C-->>-B: QUIC Handshake (1-RTT)
-    B->>C: GET /content/v7_257-i-1.m4s (HTTP/3)
+    B->>C: GET /content/segments... (HTTP/3)
     C-->>B: 200 OK (via QUIC stream)
 ```
 
