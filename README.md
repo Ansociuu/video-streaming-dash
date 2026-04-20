@@ -54,9 +54,9 @@ Dự án bao gồm:
     │  TLS 1.3 (internal)  │
     │  Alt-Svc: h3=":8443" │
     ├──────────────────────┤
-    │  /api/*  → reverse   │──→  network_api.py :8888
+    │  /api/*  → reverse   │──→  scripts/network_api.py :8888
     │  /*      → file_server│──→  /content/*.m4s
-    │  access.log (JSON)   │──→  analyze_logs.py
+    │  logs/access.log (JSON) │──→  scripts/analyze_logs.py
     └──────────────────────┘
 ```
 

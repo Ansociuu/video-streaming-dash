@@ -114,9 +114,9 @@ def parse_log():
                 "status":          status,
                 "scenario":        scenario,
                 # Timing
-                "duration_ms":     round(duration_ms, 3),
+                "duration_ms":     round(float(duration_ms), 3),
                 # Throughput
-                "throughput_mbps": round(throughput_mbps, 4),
+                "throughput_mbps": round(float(throughput_mbps), 4),
                 # Size
                 "resp_size_bytes": size,
                 "req_bytes_read":  bytes_read,
