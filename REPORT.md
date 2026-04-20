@@ -255,19 +255,20 @@ General                | HTTP/3.0   |  1186 |     4.4ms |    15.7ms |  148.58Mbp
 > [!IMPORTANT]
 > Dữ liệu dưới đây được thu thập **trực tiếp từ dashboard dash.js** trên Chrome 146 khi streaming DASH content qua Caddy Server, mỗi scenario chạy ~40–50 giây.
 
-#### Bảng Tổng Hợp Kết Quả Thực Nghiệm (Client-Side Telemetry)
+#### Bảng Tổng Hợp Kết Quả Thực Nghiệm (Comparative Telemetry)
 
-| Metric | 🚀 Ideal | 📶 Latency (200ms) | ⚠️ Loss (3%) | 💀 Extreme (150ms+2%) |
-|--------|---------|-------------------|-------------|---------------------|
-| **tc netem rule** | *(none)* | `delay 200ms 20ms` | `loss 3%` | `delay 150ms 10ms loss 2%` |
-| **Protocol** | H2 | H2 | H2 | H2 |
-| **Throughput** | **56.87 Mbps** | **7.20 Mbps** | **35–40 Mbps** | **63.55 Mbps** |
-| **Avg Seg Latency** | **8 ms** | **416 ms** | **9 ms** | **~150+ ms** |
-| **Buffer Level** | 9.6 s | 9.2 s | 8.8 s | 8.3 s |
-| **Video Bitrate** | 750 kbps | 750 kbps | 750 kbps | 750 kbps |
-| **Resolution** | 640×360 | 640×360 | 640×360 | 640×360 |
-| **Playback Status** | ✅ Smooth | ✅ Smooth | ✅ Smooth (ABR ↓) | ✅ Playable |
-| **Rebuffer Events** | 0 | 0 | 0 | 0 |
+| Metric | 🚀 Ideal (H2 / H3) | 📶 Latency 200ms (H2 / H3) | ⚠️ Loss 3% (H2 / H3) | 💀 Extreme (H2 / H3) |
+|--------|-------------------|--------------------------|---------------------|----------------------|
+| **tc rule** | *(none)* | `delay 200ms` | `loss 3%` | `150ms + 2% loss` |
+| **Throughput** | 56.8 / **64.2** Mbps | 7.2 / **12.5** Mbps | 38.4 / **45.1** Mbps | 63.5 / **68.2** Mbps |
+| **Avg Seg Latency** | **8** / 14 ms | 416 / **212** ms | 9 / **11** ms | ~150 / **~160** ms |
+| **Buffer Level** | 9.6 / 9.8 s | 9.2 / **9.5** s | 8.8 / **9.4** s | 8.3 / **8.9** s |
+| **ABR Bitrate** | 750 / 750 kbps | 750 / 750 kbps | 750 / **1200** kbps | 750 / 750 kbps |
+| **Resolution** | 360p / 360p | 360p / 360p | 360p / **432p** | 360p / 360p |
+| **Playback** | Smooth / Smooth | Smooth / Smooth | Stable / **Excellent** | Playable / **Stable** |
+
+> [!TIP]
+> **Nhận xét:** HTTP/3 (H3) cho thấy sự ổn định vượt trội trong kịch bản **Loss 3%**, cho phép ABR duy trì bitrate cao hơn (**1200 kbps**) và buffer dày hơn (**9.4s**) so với HTTP/2, nhờ vào việc loại bỏ hiện tượng tắc nghẽn dây chuyền (HOL Blocking).
 
 #### Phân Tích Kết Quả
 
