@@ -12,7 +12,7 @@ import sys
 from collections import defaultdict
 from datetime import datetime
 
-LOG_FILE = "/home/vboxuser/dash-content/access.log"
+LOG_FILE = "/home/vboxuser/dash-content/logs/access.log"
 
 # ─────────────────────────────────────────────
 # HELPER

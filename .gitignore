@@ -1,5 +1,6 @@
 # Logs
-access.log
+logs/
+!logs/.gitkeep
 dash_server_log_*.csv
 
 # Python

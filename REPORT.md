@@ -16,10 +16,10 @@ graph TD
     A -->|"TLS/TCP (HTTP/2)"| B
     B["⚡ Caddy Server :8443<br/>(TLS 1.3 + HTTP/3 + HTTP/2)"]
     B -->|"Alt-Svc header<br/>h3=:8443"| A
-    B -->|"reverse proxy"| C["🐍 network_api.py :8888<br/>(tc qdisc throttling)"]
+    B -->|"reverse proxy"| C["🐍 scripts/network_api.py :8888<br/>(tc qdisc throttling)"]
     B -->|"file server"| D["📁 /content/*.m4s<br/>(video segments)"]
     C -->|"sudo tc qdisc"| E["🔧 Linux tc netem<br/>(lo interface)"]
-    F["📊 analyze_logs.py"] -->|"parse JSON"| G["access.log"]
+    F["📊 scripts/analyze_logs.py"] -->|"parse JSON"| G["logs/access.log"]
     G --> B
 ```
 
@@ -29,8 +29,8 @@ graph TD
 |-----------|-----------|---------|
 | **Web Server** | Caddy v2 | Phục vụ DASH segments qua HTTP/2 & HTTP/3 |
 | **Video Player** | dash.js (CDN) | ABR client, telemetry thu thập real-time |
-| **Network Throttling** | Python `network_api.py` + Linux `tc netem` | Mô phỏng các điều kiện mạng |
-| **Log Analysis** | `analyze_logs.py` | Parse JSON access.log → CSV export |
+| **Network Throttling** | Python `scripts/network_api.py` + Linux `tc netem` | Mô phỏng các điều kiện mạng |
+| **Log Analysis** | `scripts/analyze_logs.py` | Parse JSON access.log → CSV export |
 | **Content** | 983 file `.m4s` + 3 manifest `.mpd` | MPEG-DASH ISO BMFF segments |
 
 ---
@@ -182,7 +182,7 @@ GET  /api/network/status
 ```
 dash.js events → app.js listener → CSV in-memory log
                                         ↓
-Caddy → access.log (JSON) → analyze_logs.py → dash_server_log_*.csv
+Caddy → logs/access.log (JSON) → scripts/analyze_logs.py → dash_server_log_*.csv
 ```
 
 **Metrics thu thập từ Caddy logs:**
@@ -402,12 +402,14 @@ Trong log thực tế, ta thấy pattern này rõ ràng:
 ├── player.html                        # DASH player UI (dash.js + telemetry)
 ├── css/style.css                      # Premium dark UI styling
 ├── js/app.js                          # dash.js integration + event handlers
-├── network_api.py                     # Python HTTP server → tc qdisc API
-├── network_sim.sh                     # Shell wrapper cho tc commands
-├── analyze_logs.py                    # Caddy log parser → CSV exporter
-├── benchmark.sh                       # HTTP/2 curl benchmark script
-├── access.log                         # Caddy JSON access log (3 MB)
-├── dash_server_log_20260420_*.csv     # Exported telemetry (1.961 rows)
+├── logs/
+│   └── access.log                     # Caddy JSON access log
+├── scripts/
+│   ├── analyze_logs.py                # Caddy JSON log parser → CSV exporter
+│   ├── network_api.py                 # Python HTTP server → tc qdisc API
+│   ├── network_sim.sh                 # Shell wrapper cho tc commands
+│   └── benchmark.sh                   # HTTP/2 curl benchmark script
+├── dash_server_log_*.csv              # Exported telemetry data
 └── content/
     ├── manifest.mpd                   # Full stream (9 video + 1 audio)
     ├── manifest-video-only.mpd        # Video-only manifest
@@ -427,23 +429,23 @@ cd /home/vboxuser/dash-content
 caddy run --config Caddyfile
 
 # Terminal 2: Start Network API (cần sudo cho tc)
-sudo python3 network_api.py
+sudo python3 scripts/network_api.py
 ```
 
 ### Bước 2: Áp Dụng Network Scenario
 
 ```bash
 # Ideal (default)
-sudo ./network_sim.sh ideal
+sudo scripts/network_sim.sh ideal
 
 # High Latency
-sudo ./network_sim.sh latency
+sudo scripts/network_sim.sh latency
 
 # Packet Loss
-sudo ./network_sim.sh loss
+sudo scripts/network_sim.sh loss
 
 # Extreme
-sudo ./network_sim.sh extreme
+sudo scripts/network_sim.sh extreme
 ```
 
 ### Bước 3: Mở Player và Ghi Nhận
@@ -457,10 +459,10 @@ sudo ./network_sim.sh extreme
 
 ```bash
 # Phân tích server-side logs
-python3 analyze_logs.py
+python3 scripts/analyze_logs.py
 
 # Benchmark HTTP/2 với curl
-./benchmark.sh
+./scripts/benchmark.sh
 ```
 
 ---

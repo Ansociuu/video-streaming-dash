@@ -88,7 +88,7 @@ Server sẽ lắng nghe trên `https://localhost:8443` với HTTP/2 + HTTP/3.
 ### 2. Khởi động Network API (tùy chọn)
 
 ```bash
-sudo python3 network_api.py
+sudo python3 scripts/network_api.py
 ```
 
 API server lắng nghe trên `http://127.0.0.1:8888`.
@@ -141,16 +141,16 @@ https://localhost:8443/player.html
 
 ```bash
 # Ideal — xóa mọi rules
-sudo ./network_sim.sh ideal
+sudo scripts/network_sim.sh ideal
 
 # High Latency — 200ms ± 20ms jitter
-sudo ./network_sim.sh latency
+sudo scripts/network_sim.sh latency
 
 # Packet Loss — 3%
-sudo ./network_sim.sh loss
+sudo scripts/network_sim.sh loss
 
 # Extreme — 150ms + 2% loss
-sudo ./network_sim.sh extreme
+sudo scripts/network_sim.sh extreme
 ```
 
 ### Qua API (network_api.py)
@@ -177,7 +177,7 @@ curl http://localhost:8888/api/network/status
 ### Chạy phân tích
 
 ```bash
-python3 analyze_logs.py
+python3 scripts/analyze_logs.py
 ```
 
 **Output:**
@@ -214,11 +214,13 @@ dash-content/
 │   └── style.css           # Premium dark theme styling
 ├── js/
 │   └── app.js              # dash.js integration + event handlers
-├── network_api.py          # Python REST API → tc qdisc commands
-├── network_sim.sh          # Shell script cho network simulation
-├── analyze_logs.py         # Caddy JSON log parser → CSV exporter
-├── benchmark.sh            # HTTP/2 performance test (curl)
-├── access.log              # Caddy JSON access log
+├── logs/
+│   └── access.log          # Caddy JSON access log
+├── scripts/
+│   ├── analyze_logs.py     # Caddy JSON log parser → CSV exporter
+│   ├── network_api.py      # Python REST API → tc qdisc commands
+│   ├── network_sim.sh      # Shell script cho network simulation
+│   └── benchmark.sh        # HTTP/2 performance test (curl)
 ├── dash_server_log_*.csv   # Exported telemetry data
 └── content/
     ├── manifest.mpd                # Full stream manifest (9 video + 1 audio)
