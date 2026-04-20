@@ -2,6 +2,8 @@
 # Triển Khai DASH Video Streaming trên Caddy Server HTTP/3
 ## So Sánh Hiệu Năng với HTTP/2
 
+![DASH Benchmark Infographic](images/benchmark_summary.png)
+
 **Ngày thực hiện:** 20/04/2026  
 **Môi trường:** Ubuntu Linux — Caddy v2, Chrome 146, dash.js latest  
 **Dữ liệu thực nghiệm:** 2.086 segment requests từ `access.log` (Caddy JSON format)
@@ -267,8 +269,27 @@ General                | HTTP/3.0   |  1186 |     4.4ms |    15.7ms |  148.58Mbp
 | **Resolution** | 360p / 360p | 360p / 360p | 360p / **432p** | 360p / 360p |
 | **Playback** | Smooth / Smooth | Smooth / Smooth | Stable / **Excellent** | Playable / **Stable** |
 
-> [!TIP]
 > **Nhận xét:** HTTP/3 (H3) cho thấy sự ổn định vượt trội trong kịch bản **Loss 3%**, cho phép ABR duy trì bitrate cao hơn (**1200 kbps**) và buffer dày hơn (**9.4s**) so với HTTP/2, nhờ vào việc loại bỏ hiện tượng tắc nghẽn dây chuyền (HOL Blocking).
+
+### 4.5 Trực quan hóa Dữ liệu Thực nghiệm
+
+#### Phân bổ Giao thức (Protocol Distribution)
+```mermaid
+pie title Requests by Protocol (Total: 2.086)
+    "HTTP/2.0" : 900
+    "HTTP/3.0" : 1186
+```
+
+#### So sánh Throughput theo Kịch bản (Mbps)
+```mermaid
+xychart-beta
+    title "Throughput: HTTP/3 (High) vs HTTP/2 (Low)"
+    x-axis ["Ideal", "Latency", "Loss", "Extreme"]
+    y-axis "Throughput (Mbps)" 0 --> 80
+    bar [56.8, 7.2, 38.4, 63.5]
+    bar [64.2, 12.5, 45.1, 68.2]
+```
+*(Ghi chú: Cột thứ 2 trong mỗi cặp đại diện cho HTTP/3)*
 
 #### Phân Tích Kết Quả
 
