@@ -1,0 +1,24 @@
+# Logs
+access.log
+dash_server_log_*.csv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Workspace
+.gemini/
+.agents/
+.agent/
+_agents/
+_agent/
+brain/
+
+# Video Content
+content/
+

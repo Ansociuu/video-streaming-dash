@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium DASH Stream Dashboard</title>
+    <!-- Favicon -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+
+    <!-- DASH.js Library -->
+    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+
+    <!-- External Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+
+    <div class="header">
+        <h1 class="title">Command Center</h1>
+        <p class="subtitle">Real-time HTTP/3 DASH Streaming</p>
+    </div>
+
+    <div class="layout-grid">
+        <!-- Main Player UI -->
+        <div class="glass-panel player-wrapper">
+            <video id="videoPlayer" controls autoplay muted></video>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                <div class="badge-live" id="streamBadge">
+                    <div class="dot" id="liveDot"></div>
+                    <span id="playerStateText">Playing</span>
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-muted)">
+                    Source: <span id="currentSrcLabel" style="color: #fff; font-weight: 600;">Full Stream</span>
+                </div>
+            </div>
+
+            <!-- Analytics Row -->
+            <div style="margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+                <h2 class="panel-header" style="border: none; margin-bottom: 1rem;">Live Telemetry</h2>
+                <div class="stats-grid" style="grid-template-columns: repeat(6, 1fr);">
+                    <div class="stat-card">
+                        <div class="stat-label">Protocol</div>
+                        <div class="stat-value highlight" id="statProtocol" style="color: #6366f1;">Detecting...</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Buffer Level</div>
+                        <div class="stat-value highlight" id="statBuffer">0.0s</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Throughput</div>
+                        <div class="stat-value" id="statThroughput">0 Mbps</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Seg Latency</div>
+                        <div class="stat-value" id="statSegLatency">0 ms</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Video Bitrate</div>
+                        <div class="stat-value" id="statBitrate">0 kbps</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Resolution</div>
+                        <div class="stat-value" id="statResolution">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logging Control Row -->
+            <div
+                style="margin-top: 1.5rem; background: var(--panel-bg); padding: 1.25rem; border-radius: 15px; border: 1px solid var(--glass-border);">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.25rem;">Telemetry Logging</label>
+                        <div id="logStatus" style="font-size: 0.85rem; color: var(--text-muted);">
+                            Records: 0
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <button class="btn btn-outline" id="startLoggingBtn">Start Recording</button>
+                        <button class="btn btn-outline" id="downloadLogBtn" disabled>Export CSV</button>
+                        <button class="btn btn-outline" id="clearLogBtn"
+                            style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard UI (Sidebar) -->
+        <div class="dashboard-wrapper">
+            <!-- Controls Panel -->
+            <div class="glass-panel">
+                <h2 class="panel-header">Stream Controls</h2>
+                <div class="controls-group">
+
+                    <div class="control-item">
+                        <label>Simulate Network Scenario</label>
+                        <select id="networkScenario">
+                            <option value="unlimited">🚀 5G / Broadband (Unlimited)</option>
+                            <option value="15000">📶 Fiber / Excellent (Max ~15 Mbps)</option>
+                            <option value="5000">📶 4G LTE / Good (Max ~5 Mbps)</option>
+                            <option value="2500">📶 4G / Average (Max ~2.5 Mbps)</option>
+                            <option value="800">🐢 3G / Poor (Max ~800 kbps)</option>
+                            <option value="200">❌ Edge / Very Poor (Max ~200 kbps)</option>
+                        </select>
+                    </div>
+
+                    <div class="switch-container">
+                        <label for="abrToggle">Auto Bitrate (ABR)</label>
+                        <label class="switch">
+                            <input type="checkbox" id="abrToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="control-item">
+                        <label for="qualitySelect">Manual Quality Override</label>
+                        <select id="qualitySelect" disabled>
+                            <option value="auto">Auto (ABR Enabled)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-item" style="margin-top: 0.5rem;">
+                        <label>Custom Video URL (MPD)</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="customVideoUrl" placeholder="https://..." style="flex: 1;">
+                            <button class="btn btn-outline" id="loadVideoBtn" style="white-space: nowrap;">Load
+                                URL</button>
+                        </div>
+                    </div>
+
+                    <div class="control-item" style="margin-top: 0.5rem;">
+                        <label>Quick Source Select</label>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button class="btn btn-outline active quick-src-btn" data-src="/content/manifest.mpd"
+                                data-name="Full Stream">Local Full</button>
+                            <button class="btn btn-outline quick-src-btn" data-src="/content/manifest-video-only.mpd"
+                                data-name="Video Only">Local Video</button>
+                            <button class="btn btn-outline quick-src-btn" data-src="/content/manifest-audio-only.mpd"
+                                data-name="Audio Only">Local Audio</button>
+                            <button class="btn btn-outline quick-src-btn"
+                                data-src="https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd"
+                                data-name="BBB">BBB</button>
+                            <button class="btn btn-outline quick-src-btn"
+                                data-src="https://dash.akamaized.net/envivio/EnvivioDash3/manifest.mpd"
+                                data-name="Envivio">Envivio</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Research Lab Panel -->
+            <div class="glass-panel" style="margin-top: 1.5rem; background: rgba(99, 102, 241, 0.05); border-color: rgba(99, 102, 241, 0.3); position: relative; z-index: 100;">
+                <h2 class="panel-header" style="color: #818cf8; border-color: rgba(99, 102, 241, 0.2);">Research Lab</h2>
+                <div class="controls-group" style="gap: 1.25rem;">
+                    
+                    <div class="control-item">
+                        <label>Active Scenario</label>
+                        <div id="activeScenarioLabel" style="font-weight: 800; font-size: 1.1rem; color: #34d399;">Ideal (Low Latency)</div>
+                    </div>
+
+                    <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--glass-border);">
+                        Sao chép và chạy lệnh này ở Terminal của bạn:
+                        <code id="terminalCmd" style="display: block; margin-top: 0.5rem; color: #fbbf24; font-family: monospace; font-size: 0.9rem;">sudo ./network_sim.sh ideal</code>
+                    </div>
+
+                    <div class="control-item">
+                        <label>Select Preset</label>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <button class="btn btn-outline btn-sm scenario-btn active" data-arg="ideal" data-name="Ideal (Low Latency)" data-desc="Mạng lý tưởng, H2/H3 tương đồng.">🚀 Ideal Network</button>
+                            <button class="btn btn-outline btn-sm scenario-btn" data-arg="latency" data-name="High Latency (200ms)" data-desc="H3 nhanh hơn H2 nhờ QUIC (giảm bắt tay).">📶 High Latency (200ms)</button>
+                            <button class="btn btn-outline btn-sm scenario-btn" data-arg="loss" data-name="Packet Loss (3%)" data-desc="H3 vượt trội nhờ loại bỏ Head-of-Line Blocking.">⚠️ Packet Loss (3%)</button>
+                            <button class="btn btn-outline btn-sm scenario-btn" data-arg="extreme" data-name="Extreme (H3 Stable)" data-desc="H3 ổn định trong khi H2 có thể bị đứng hình.">💀 Extreme Scenario</button>
+                        </div>
+                    </div>
+
+                    <div id="scenarioObservation" style="font-size: 0.85rem; background: rgba(52, 211, 153, 0.05); border: 1px solid rgba(52, 211, 153, 0.2); padding: 0.75rem; border-radius: 8px; color: #e2e8f0;">
+                        <strong>Phân tích:</strong> Mạng lý tưởng, H2/H3 tương đồng.
+                    </div>
+
+                </div>
+            </div>
+
+            <script>
+                // Self-contained Research Lab logic to avoid any external JS conflicts
+                document.addEventListener('DOMContentLoaded', function() {
+                    const btns = document.querySelectorAll('.scenario-btn');
+                    const label = document.getElementById('activeScenarioLabel');
+                    const cmd = document.getElementById('terminalCmd');
+                    const obs = document.getElementById('scenarioObservation');
+
+                    btns.forEach(function(btn) {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            // Visual feedback
+                            btns.forEach(b => b.classList.remove('active'));
+                            this.classList.add('active');
+
+                            // Data update
+                            const arg = this.getAttribute('data-arg');
+                            const name = this.getAttribute('data-name');
+                            const desc = this.getAttribute('data-desc');
+
+                            if(label) label.innerText = name;
+                            if(cmd) cmd.innerText = 'sudo ./network_sim.sh ' + arg;
+                            if(obs) obs.innerHTML = '<strong>Phân tích:</strong> ' + desc;
+                            
+                            console.log('Lab scenario updated:', name);
+                        });
+                    });
+                });
+            </script>
+        </div>
+    </div>
+
+    <!-- Main Logic -->
+    <script src="js/app.js?v=2"></script>
+</body>
+
+</html>
