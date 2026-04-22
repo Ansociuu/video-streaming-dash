@@ -1,9 +1,9 @@
-# Báo Cáo Kỹ Thuật Chi Tiết
+# BÁO CÁO KỸ THUẬT CHI TIẾT
 # Triển Khai DASH Video Streaming trên Caddy Server HTTP/3
-## So Sánh Hiệu Năng với HTTP/2
+## So sánh hiệu năng với HTTP/2
 
 **Ngày thực hiện:** 20/04/2026  
-**Môi trường:** Ubuntu Linux — Caddy v2, Chrome 146, dash.js latest  
+**Môi trường:** Ubuntu Linux — Caddy v2, Chrome, dash.js latest  
 **Dữ liệu thực nghiệm:** 2.086 segment requests từ `access.log` (Caddy JSON format)
 
 ---
@@ -104,7 +104,7 @@ MPD Manifest → dash.js đọc Representation list
     http_port 8080
 }
 
-localhost:8443, 127.0.0.1:8443, 127.0.0.1.nip.io:8443 {
+localhost:8443 {
     tls internal                         # Self-signed cert cho dev
 
     handle /api/* {
@@ -257,7 +257,7 @@ General                | HTTP/3.0   |  1186 |     4.4ms |    15.7ms |  148.58Mbp
 
 #### Bảng Tổng Hợp Kết Quả Thực Nghiệm (Comparative Telemetry)
 
-| Metric | 🚀 Ideal (H2 / H3) | 📶 Latency 200ms (H2 / H3) | ⚠️ Loss 3% (H2 / H3) | 💀 Extreme (H2 / H3) |
+| Metric | Ideal (H2 / H3) | Latency 200ms (H2 / H3) | Loss 3% (H2 / H3) | Extreme (H2 / H3) |
 |--------|-------------------|--------------------------|---------------------|----------------------|
 | **tc rule** | *(none)* | `delay 200ms` | `loss 3%` | `150ms + 2% loss` |
 | **Throughput** | 56.8 / **64.2** Mbps | 7.2 / **12.5** Mbps | 38.4 / **45.1** Mbps | 63.5 / **68.2** Mbps |
@@ -474,12 +474,12 @@ python3 scripts/analyze_logs.py
 
 | Tiêu Chí | HTTP/2 | HTTP/3 | Winner |
 |----------|--------|--------|--------|
-| **Latency (localhost)** | ~1ms avg | ~4ms avg | ✅ HTTP/2 |
-| **Throughput** | 230 Mbps avg | 346 Mbps avg | ✅ HTTP/3 |
-| **Packet Loss Resilience** | TCP HOL Block | Isolated per stream | ✅ **HTTP/3** |
-| **High Latency Networks** | Baseline RTT-bound | ~50% faster conn | ✅ **HTTP/3** |
-| **DASH Quality Stability** | Degrades under loss | Stable ABR | ✅ **HTTP/3** |
-| **Implementation Complexity** | Mature, simple | Caddy auto-handles | ✅ HTTP/3 |
+| **Latency (localhost)** | ~1ms avg | ~4ms avg | HTTP/2 |
+| **Throughput** | 230 Mbps avg | 346 Mbps avg | HTTP/3 |
+| **Packet Loss Resilience** | TCP HOL Block | Isolated per stream | **HTTP/3** |
+| **High Latency Networks** | Baseline RTT-bound | ~50% faster conn | **HTTP/3** |
+| **DASH Quality Stability** | Degrades under loss | Stable ABR | **HTTP/3** |
+| **Implementation Complexity** | Mature, simple | Caddy auto-handles | HTTP/3 |
 | **Error Rate (thực nghiệm)** | 0% | 0% | Tie |
 | **Segment Delivery Success** | 100% (775 req) | 100% (1186 req) | Tie |
 
@@ -496,11 +496,11 @@ python3 scripts/analyze_logs.py
 ### 9.3 Caddy là Lựa Chọn Lý Tưởng
 
 So với Nginx (cần build đặc biệt) hay Apache (experimental QUIC), **Caddy v2**:
-- ✅ HTTP/3 bật **mặc định**, không cần cấu hình thêm
-- ✅ TLS 1.3 tự động với cert management
-- ✅ `Alt-Svc` header tự động được thêm
-- ✅ JSON-format access log → dễ parse với Python
-- ✅ Admin API trên `:2019` cho hot-reload config
+- HTTP/3 bật **mặc định**, không cần cấu hình thêm
+- TLS 1.3 tự động với cert management
+- `Alt-Svc` header tự động được thêm
+- JSON-format access log → dễ parse với Python
+- Admin API trên `:2019` cho hot-reload config
 
 ---
 
